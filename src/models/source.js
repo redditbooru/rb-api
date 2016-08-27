@@ -11,5 +11,9 @@ module.exports = db.define('sources', {
   name: {
     type: Sequelize.STRING(50),
     field: 'source_name'
+  },
+  type: {
+    type: Sequelize.STRING(20),
+    field: 'source_type'
   }
 });
