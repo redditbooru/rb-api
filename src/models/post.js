@@ -1,6 +1,7 @@
 const Sequelize = require('sequelize');
 
 const db = require('../db').db;
+const Image = require('./image');
 const Source = require('./source');
 const User = require('./user');
 

@@ -1,6 +1,8 @@
 const db = require('./src/db');
 const Post = require('./src/models/post');
 
+require('./src/models/post-image');
+
 Post.findOne({
   where: {
     sourceId: {
@@ -8,9 +10,10 @@ Post.findOne({
     }
   }
 }).then(post => {
-  console.log(post.get('nsfw'));
-  return post.getSource();
-}).then(source => {
-  console.log(source.get('name'));
+  return post.getImages();
+}).then(images => {
+  images.forEach(image => {
+    console.log(image.get('url'));
+  });
   process.exit();
 });
