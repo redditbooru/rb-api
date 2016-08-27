@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize');
 
 const db = require('../db').db;
-const Source = require('./sources');
+const Source = require('./source');
 
 const Post = db.define('posts', {
   id: {

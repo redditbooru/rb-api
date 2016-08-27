@@ -1,6 +1,6 @@
 const db = require('./src/db');
-const Posts = require('./src/models/posts');
+const Post = require('./src/models/post');
 
-Posts.findOne().then(post => {
+Post.findOne().then(post => {
   console.log(post.get('id'));
 });
