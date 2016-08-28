@@ -36,7 +36,7 @@ module.exports = Singleton('cache', {
   get(key) {
     return new Promise((resolve, reject) => {
       this.client.get(key, (err, data) => {
-        if (data) {
+        if (data && data[key]) {
           resolve(data[key]);
         } else {
           resolve(null);
@@ -51,6 +51,7 @@ module.exports = Singleton('cache', {
    *
    * @param {String} key The key to save to
    * @param {Object} value The value to store
+   * @param {Number} exp The expiration time in seconds
    */
   set(key, value, exp = this.MEDIUM) {
     return new Promise((resolve, reject) => {
