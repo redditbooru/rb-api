@@ -13,7 +13,9 @@
     "mc": "^1.0.6",
     "molecule-singleton": "^1.0.5",
     "mysql": "^2.11.1",
-    "sequelize": "^3.24.1"
+    "node-uuid": "^1.4.7",
+    "sequelize": "^3.24.1",
+    "shortid": "^2.2.6"
   },
   "devDependencies": {
     "expect.js": "^0.3.1",
