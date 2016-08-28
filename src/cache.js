@@ -63,5 +63,35 @@ module.exports = Singleton('cache', {
         }
       });
     });
+  },
+
+  /**
+   * Returns `key` when it exists, otherwise runs `fn`, caches that result, and returns it
+   * @public
+   *
+   * @param {String} key The cache key
+   * @param {Function} fn The function to run on a cache miss
+   * @param {Number} exp The expiration time in seconds
+   */
+  fetch(key, fn, exp = this.MEDIUM) {
+    return new Promise((resolve, reject) => {
+      this.get(key).then(result => {
+        if (null !== result) {
+          resolve(result);
+        } else {
+          // Get the value from the method passed
+          const value = fn();
+
+          // If it's a promise, wait for resolution
+          if (value instanceof Promise) {
+            value.then(result => {
+              this.set(key, result, exp).then(resolve).catch(reject);
+            }).catch(reject);
+          } else {
+            this.set(key, value, exp).then(resolve).catch(reject);
+          }
+        }
+      });
+    });
   }
 });
