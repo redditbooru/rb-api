@@ -1,0 +1,1 @@
+[![Build Status](https://travis-ci.org/dxprog/rb-api.svg)](https://travis-ci.org/dxprog/rb-api)
