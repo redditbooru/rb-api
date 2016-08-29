@@ -49,7 +49,7 @@ function verify(req, needsWrite) {
       reject();
     } else {
       verifyClientId(clientId, clientSecret).then(result => {
-        if (!needsWrite || (needsWrite && result === VERIFIED_FOR_WRITE)) {
+        if (!needsWrite || (needsWrite && result == VERIFIED_FOR_WRITE)) {
           resolve();
         } else {
           reject();
