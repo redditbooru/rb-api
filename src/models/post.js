@@ -8,6 +8,7 @@ const User = require('./user');
 const Post = db.define('posts', {
   id: {
     primaryKey: true,
+    autoIncrement: true,
     type: Sequelize.INTEGER,
     field: 'post_id'
   },
