@@ -4,11 +4,13 @@
   "description": "RedditBooru API server",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
     "test": "mocha"
   },
   "author": "Matt Hackmann <matt@dxprog.com>",
   "license": "WTFPL",
   "dependencies": {
+    "body-parser": "^1.15.2",
     "express": "^4.14.0",
     "mc": "^1.0.6",
     "molecule-singleton": "^1.0.5",
