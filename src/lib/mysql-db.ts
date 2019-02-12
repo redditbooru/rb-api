@@ -12,7 +12,10 @@ export class MysqlDb {
   private _conn: mysql.Connection;
 
   public async connect(options: mysql.ConnectionConfig) {
-    this._conn = mysql.createConnection(options);
+    this._conn = mysql.createConnection({
+      ...options,
+      typeCast: this._typeCast
+    });
 
     return new Promise((resolve, reject) => {
       this._conn.config.queryFormat = this._queryFormat.bind(this);
@@ -67,5 +70,19 @@ export class MysqlDb {
       }
       return token;
     });
+  }
+
+  /**
+   * Performs special type casting for single bit fields
+   * 
+   * @param field The field info
+   * @param defaultTypeCasting The default type casting method
+   */
+  private _typeCast(field: any, defaultTypeCasting: Function) {
+    let retVal;
+    if (field.type === 'BIT' && field.length === 1) {
+      retVal = field.buffer()[0] === 1;
+    }
+    return retVal || defaultTypeCasting();
   }
 }
