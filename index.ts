@@ -1,4 +1,5 @@
 import { App } from './src/app';
+import { SourceController } from './src/controllers/source';
 import { IAppConfig } from './src/interfaces/config';
 import { Controller } from './src/lib/controller';
 import { MysqlDb } from './src/lib/mysql-db';
@@ -8,7 +9,7 @@ import config from './config';
 type ControllerPrototype = typeof Controller;
 
 const ACTIVE_CONTROLLERS: Array<ControllerPrototype> = [
-
+  SourceController
 ];
 
 async function boot(appConfig: IAppConfig) {

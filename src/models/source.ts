@@ -1,6 +1,5 @@
 import { Dictionary } from '../interfaces/common';
 
-import { MysqlDb } from '../lib/mysql-db';
 import {
   MysqlModel,
   tableName,
