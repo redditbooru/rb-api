@@ -1,9 +1,0 @@
-{
-  "globalDependencies": {
-    "node": "registry:env/node#6.0.0+20160825160117"
-  },
-  "dependencies": {
-    "express": "registry:npm/express#4.14.0+20160815112707",
-    "sequelize": "registry:npm/sequelize#3.0.0+20160825163932"
-  }
-}
