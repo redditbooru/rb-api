@@ -9,17 +9,17 @@ export interface IQueryResult {
 }
 
 export class MysqlDb {
-  private _conn: mysql.Connection;
+  private _conn: mysql.Pool;
 
   public async connect(options: mysql.ConnectionConfig) {
-    this._conn = mysql.createConnection({
+    this._conn = mysql.createPool({
       ...options,
-      typeCast: this._typeCast
+      typeCast: this._typeCast,
+      queryFormat: this._queryFormat.bind(this)
     });
 
     return new Promise((resolve, reject) => {
-      this._conn.config.queryFormat = this._queryFormat.bind(this);
-      this._conn.connect(err => {
+      this._conn.getConnection(err => {
         if (err) {
           reject(err);
           return;
