@@ -9,7 +9,10 @@ const APP_CONFIG: IAppConfig = {
   },
   http: {
     port: 4141
-  }
+  },
+  cachePool: [
+    '127.0.0.1:11211',
+  ]
 };
 
 export default APP_CONFIG;
