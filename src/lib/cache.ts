@@ -26,7 +26,7 @@ export enum CacheDuration {
 }
 
 class Cache {
-  private client;
+  private client: Memcached;
 
   constructor() {
     this.client = new Memcached(config.cachePool);
@@ -41,7 +41,7 @@ class Cache {
    */
   async get(cacheKey: string): Promise<any> {
     return new Promise((resolve, reject) => {
-      this.client.get(cacheKey, (err, data) => {
+      this.client.get(cacheKey, (err: any, data: any) => {
         if (err) {
           reject(err);
           return;
@@ -57,15 +57,11 @@ class Cache {
    *
    * @param {string} cacheKey The key to save to
    * @param {any} value The value to store
-   * @param {CacheDuration} exp Optional expiration time in seconds
+
    */
-  async set(
-    cacheKey: string,
-    value: any,
-    duration: CacheDuration = CacheDuration.MEDIUM
-  ): Promise<boolean> {
+  async set(cacheKey: string, value: any, duration: CacheDuration = CacheDuration.MEDIUM): Promise<boolean> {
     return new Promise((resolve, reject) => {
-      this.client.set(cacheKey, value, duration, err => {
+      this.client.set(cacheKey, value, duration, (err: any) => {
         if (err) {
           reject(err);
         } else {
@@ -74,25 +70,32 @@ class Cache {
       });
     });
   }
+}
 
-    /**
-   * Returns `key` when it exists, otherwise runs `fn`, caches that result, and returns it
-   * @public
-   *
-   * @param {string} key The cache key
-   * @param {Function} fn The function to run on a cache miss
-   * @param {CacheDuration} duration The expiration time in seconds
-   */
-  async fetch(
-    cacheKey: string,
-    fn: Function,
-    duration: CacheDuration = CacheDuration.MEDIUM
-  ) {
-    let result = await this.get(cacheKey);
-    if (typeof result === 'undefined') {
-      result = await fn();
-      await this.set(cacheKey, result, duration);
+// Set up the default export as a singleton
+const cacheObj = new Cache();
+Object.freeze(cacheObj);
+export default cacheObj;
+
+/**
+ * Function decorator that checks for a cached value before
+ * executing the method. If the method is executed, that output
+ * will be cached.
+ *
+ * @param cacheKey The name of the database table
+ * @param {CacheDuration} exp Optional expiration time in seconds
+ */
+export function cache(cacheKey: string, duration: CacheDuration = CacheDuration.MEDIUM): Function {
+  return function cacheMethodDecorator(target: Object, key: any, descriptor: TypedPropertyDescriptor<any>) {
+    const fn = descriptor.value;
+    descriptor.value = async function(...args: Array<any>) {
+      let result = await cacheObj.get(cacheKey);
+      if (typeof result === 'undefined') {
+        result = await fn.apply(this, args);
+        await cacheObj.set(cacheKey, result, duration);
+      }
+      return result;
     }
-    return result;
+    return descriptor;
   }
 }
