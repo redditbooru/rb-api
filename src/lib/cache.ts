@@ -82,18 +82,39 @@ export default cacheObj;
  * executing the method. If the method is executed, that output
  * will be cached.
  *
- * @param cacheKey The name of the database table
+ * @param {string} cacheKey The name of the database table
  * @param {CacheDuration} exp Optional expiration time in seconds
+ * @param {Array<string>} dynamicCacheKeys Keys to pull off of the parameters passed to add to the cache key.
+ *                                         This requires the first parameter passed to be an object.
  */
-export function cache(cacheKey: string, duration: CacheDuration = CacheDuration.MEDIUM): Function {
+export function cache(
+  cacheKey: string,
+  duration: CacheDuration = CacheDuration.MEDIUM,
+  dynamicCacheKeys: Array<string> = []
+): Function {
   return function cacheMethodDecorator(target: Object, key: any, descriptor: TypedPropertyDescriptor<any>) {
     const fn = descriptor.value;
     descriptor.value = async function(...args: Array<any>) {
+      // If dynamic keys were passed, attempt to pull together the dynamic cache key
+      const hasDynamicKeys = dynamicCacheKeys.length;
+      const firstArg = args.length > 0 && args[0];
+      if (hasDynamicKeys && typeof firstArg === 'object') {
+        cacheKey = dynamicCacheKeys.reduce((acc, keyName) => (
+          `${cacheKey}_${firstArg.hasOwnProperty(keyName) ? firstArg[keyName].toString() : 'null'}`
+        ), cacheKey);
+      } else if (hasDynamicKeys) {
+        // We won't error out, but throw some debugger info
+        console.warn(
+          `Dynamic keys array was passed to cache decorator, but first argument wasn't an object`, cacheKey
+        );
+      }
+
       let result = await cacheObj.get(cacheKey);
       if (typeof result === 'undefined') {
         result = await fn.apply(this, args);
         await cacheObj.set(cacheKey, result, duration);
       }
+
       return result;
     }
     return descriptor;
