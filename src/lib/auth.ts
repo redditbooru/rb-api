@@ -1,79 +1,110 @@
-const cache = require('./cache');
-const ServiceToken = require('./models/service-token');
+import * as express from 'express';
 
-const VERIFIED_FOR_READ  = 1;
-const VERIFIED_FOR_WRITE = 2;
+import cache, { CacheDuration } from './cache';
+import { ServiceToken } from '../models/service-token';
+import { MysqlDb } from './mysql-db';
 
-/**
- * Verifies a given client ID
- */
-function verifyClientId(clientId, clientSecret) {
-  const cacheKey = `rb-api:auth:verifyClientId-${clientId}:${clientSecret}`;
-  return cache.fetch(cacheKey, () => {
-    return new Promise((resolve, reject) => {
-      ServiceToken.findOne({
-        where: {
-          id: clientId
-        }
-      }).then(result => {
-        const secret = result !== null ? result.get('secret') : null;
-        if (secret) {
-          // If no client secret was passed, allow read only
-          if (!clientSecret) {
-            resolve(VERIFIED_FOR_READ);
-          } else {
-            // A secret was provided, so now the two MUST MATCH for ANY access
-            if (secret === clientSecret) {
-              resolve(VERIFIED_FOR_WRITE);
-            } else {
-              reject();
-            }
-          }
-        } else {
-          // No matching records. DENIED
-          reject();
-        }
-      }).catch(reject);
-    });
-  }, cache.LONG);
+enum AccessLevel {
+  NotVerified = 1,
+  ClientIdVerified = 2,
+  FullyVerified = 3
 }
 
-/**
- * Verifies an incoming request with an optional check for write privileges
- */
-function verify(req, needsWrite) {
-  return new Promise((resolve, reject) => {
-    const clientId = req.headers['client-id'] || req.query.clientId;
-    const clientSecret = req.headers['client-secret'];
-    if (!clientId) {
-      reject();
-    } else {
-      verifyClientId(clientId, clientSecret).then(result => {
-        if (!needsWrite || (needsWrite && result == VERIFIED_FOR_WRITE)) {
-          resolve();
-        } else {
-          reject();
-        }
-      }).catch(reject);
+const CLIENT_ID_LENGTH = 8;
+const CLIENT_SECRET_LENGTH = 36;
+const DEFAULT_SECRET = 'nullnullnullnullnullnullnullnullnull';
+
+class Auth {
+  private db: MysqlDb;
+  private initialized: boolean;
+
+  init(db: MysqlDb) {
+    if (!this.initialized) {
+      this.db = db;
+      this.initialized = true;
     }
-  });
+  }
+
+  /**
+   * Given an incoming request, returns what level of verification it's good for
+   */
+  async getAccessLevelFromRequest(req: express.Request): Promise<AccessLevel> {
+    if (!this.initialized) {
+      return AccessLevel.NotVerified;
+    }
+
+    const clientId = req.headers['client-id'] || req.query.clientId;
+    const clientSecret = req.headers['client-secret'] || DEFAULT_SECRET;
+
+    // Few quick safegaurd checks
+    if (
+      (!clientId || clientId.length !== CLIENT_ID_LENGTH) ||
+      (clientSecret && clientSecret.length !== CLIENT_SECRET_LENGTH)
+    ) {
+      return AccessLevel.NotVerified;
+    }
+
+    const cacheKey = `getAccessLevelFromRequest_${clientId}_${clientSecret}`;
+    let retVal = null; //await cache.get(cacheKey);
+    if (!retVal) {
+      const serviceToken = <ServiceToken> await ServiceToken.selectById(this.db, clientId);
+
+      if (!serviceToken) {
+        return AccessLevel.NotVerified;
+      }
+
+      retVal = serviceToken.secret === clientSecret ? AccessLevel.FullyVerified : AccessLevel.ClientIdVerified;
+      await cache.set(cacheKey, retVal, CacheDuration.VERY_LONG);
+    }
+
+    return retVal;
+  }
+}
+
+// Export this class as a singlton so we can inject some dependencies
+const auth = new Auth();
+export default auth;
+
+/**
+ * Method decorator for endpoints that require an authorized client but
+ * not client secret. Used for browser accessable API endpoints that
+ * provide read-only data.
+ */
+export function authReadOnly() {
+  return function cacheMethodDecorator(target: Object, key: any, descriptor: TypedPropertyDescriptor<any>) {
+    const originalFn = descriptor.value;
+    descriptor.value = async function(req: express.Request, res: express.Response, ...args: Array<any>) {
+      const accessLevel = await auth.getAccessLevelFromRequest(req);
+
+      // Read only requires a minimum of having a valid client I
+      // If we couldn't do that much, 403 right here and now.
+      if (accessLevel === AccessLevel.NotVerified) {
+        res.status(403);
+      } else {
+        await originalFn.apply(this, [ req, res, ...args ]);
+      }
+    };
+  }
 }
 
 /**
- * Returns a function to be called on failure
+ * Method decorator for endpoints that require a fully authorized client
+ * that can retrieve sensitive data and make writes. Used for server-side
+ * requests that have protected credentials.
  */
-function fail(res) {
-  return function(err) {
-    res.status(403).send('HTTP 403 Forbidden');
-  };
-}
+export function authFullAccess() {
+  return function cacheMethodDecorator(target: Object, key: any, descriptor: TypedPropertyDescriptor<any>) {
+    const originalFn = descriptor.value;
+    descriptor.value = async function(req: express.Request, res: express.Response, ...args: Array<any>) {
+      const accessLevel = await auth.getAccessLevelFromRequest(req);
 
-module.exports = {
-  readOnly: function(req, res, next) {
-    verify(req, false).then(next).catch(fail(res));
-  },
-
-  full: function(req, res, next) {
-    verify(req, true).then(next).catch(fail(res));
+      // Read only requires a minimum of having a valid client I
+      // If we couldn't do that much, 403 right here and now.
+      if (accessLevel !== AccessLevel.FullyVerified) {
+        res.status(403);
+      } else {
+        await originalFn.apply(this, [ req, res, ...args ]);
+      }
+    };
   }
-};
+}

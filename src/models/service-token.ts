@@ -18,8 +18,8 @@ const FIELD_MAP: Dictionary<string> = {
 @fieldMap(FIELD_MAP)
 @primaryKey('id')
 export class ServiceToken extends MysqlModel {
-  public id: number;
-  public name: string;
+  public id: string;
+  public secret: string;
 
   constructor() {
     super();
