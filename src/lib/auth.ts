@@ -1,7 +1,7 @@
 import * as express from 'express';
 
 import cache, { CacheDuration } from './cache';
-import { ServiceToken } from '../models/service-token';
+import { ServiceTokenModel } from '../models/service-token';
 import { MysqlDb } from './mysql-db';
 
 enum AccessLevel {
@@ -47,7 +47,7 @@ class Auth {
     const cacheKey = `getAccessLevelFromRequest_${clientId}_${clientSecret}`;
     let retVal = null; //await cache.get(cacheKey);
     if (!retVal) {
-      const serviceToken = <ServiceToken> await ServiceToken.selectById(this.db, clientId);
+      const serviceToken = <ServiceTokenModel> await ServiceTokenModel.selectById(this.db, clientId);
 
       if (!serviceToken) {
         return AccessLevel.NotVerified;

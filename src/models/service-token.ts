@@ -17,7 +17,7 @@ const FIELD_MAP: Dictionary<string> = {
 @tableName(TABLE_NAME)
 @fieldMap(FIELD_MAP)
 @primaryKey('id')
-export class ServiceToken extends MysqlModel {
+export class ServiceTokenModel extends MysqlModel {
   public id: string;
   public secret: string;
 
@@ -26,6 +26,6 @@ export class ServiceToken extends MysqlModel {
   }
 
   public static create() {
-    return new ServiceToken();
+    return new ServiceTokenModel();
   }
 }
