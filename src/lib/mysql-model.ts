@@ -132,7 +132,7 @@ export abstract class MysqlModel {
    * @param db The database object
    * @param id ID of the row to find
    */
-  public static selectById(db: MysqlDb, id: number) {
+  public static selectById(db: MysqlDb, id: (number | string)) {
     this._verifyFields();
     const primaryKeyField = this._mysqlFields[this._mysqlPrimaryKey];
     return db.query(

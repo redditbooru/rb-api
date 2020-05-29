@@ -99,7 +99,11 @@ export class App {
         console.error(error);
         console.trace();
       }
-      res.json(data);
+
+      if (data) {
+        res.json(data);
+      }
+      res.send();
     };
   }
 }
