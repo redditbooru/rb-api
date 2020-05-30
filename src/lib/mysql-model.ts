@@ -1,4 +1,4 @@
-import { Dictionary } from '../interfaces/common';
+import { Dictionary, GenericObject } from '../interfaces/common';
 import { MysqlDb } from './mysql-db';
 
 export enum ColumnTypes {
@@ -17,6 +17,11 @@ export interface ColumnDescriptor {
    * The column's data type
    */
   type: ColumnTypes;
+
+  /**
+   * If this column can have a null value
+   */
+  nullable?: Boolean;
 
   /**
    * If this column is a primary key
@@ -64,6 +69,49 @@ export abstract class MysqlModel {
       const mysqlField = _mysqlFields[key].name;
       this[key] = row[mysqlField];
     });
+  }
+
+  /**
+   * Creates an instance of this model from a plain object with
+   * property and type validation
+   *
+   * @param {GenericObject} obj The object to create the instance from
+   * @return {MysqlModel} The model instance
+   */
+  public static createFromObject(obj: GenericObject) {
+    const retObj = <MysqlModel>this.create();
+    const { _mysqlFields } = <typeof MysqlModel>retObj.constructor;
+    const errors = Object.keys(_mysqlFields).reduce((errs: Array<string>, key: string) => {
+      const schema = _mysqlFields[key];
+      let valid = true;
+      if (obj.hasOwnProperty(key) && !schema.nullable) {
+        switch (schema.type) {
+          case ColumnTypes.Number:
+            valid = !Number.isNaN(obj[key] - 0);
+            break;
+          case ColumnTypes.Boolean:
+            valid = obj[key] === true || obj[key] === false;
+            break;
+        }
+
+        if (!valid) {
+          errs.push(`Expected type ${schema.type} for column "${key}". Got: ${obj[key]}`);
+        }
+      } else if (!obj.hasOwnProperty(key) && !schema.nullable) {
+        errs.push(`Expected value for column "${key}"`);
+      }
+
+      return errs;
+    }, []);
+
+    if (errors.length) {
+      console.error(errors);
+      return null;
+    }
+
+    // Copy all the properties over to the new instance
+    Object.keys(_mysqlFields).forEach(key => retObj[key] = obj[key] );
+    return retObj;
   }
 
   /**
