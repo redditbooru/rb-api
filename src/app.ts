@@ -13,6 +13,22 @@ const DEFAULT_OPTIONS: IHttpConfig = {
   port: 4141
 };
 
+const padNumber = (num: number) => (
+  `${num}`.length < 2 ? `0${num}` : num
+);
+
+const dateStamp = () => {
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = padNumber(date.getMonth() + 1);
+  const day = padNumber(date.getDate());
+  const hours = padNumber(date.getHours());
+  const minutes = padNumber(date.getMinutes());
+  const seconds = padNumber(date.getSeconds());
+
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
 export class App {
   private app: express.Express;
   private server: http.Server;
@@ -91,6 +107,7 @@ export class App {
    */
   private _handleRequest(handler: RouteHandler): express.RequestHandler {
     return async (req: express.Request, res: express.Response): Promise<void> => {
+      console.log(`[${dateStamp()}] ${req.method} ${req.originalUrl} [ClientID=${req.headers['client-id'] || 'None'}]`);
       let data = null;
       try {
         data = await handler(req, res);
