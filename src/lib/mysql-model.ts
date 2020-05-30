@@ -1,6 +1,29 @@
 import { Dictionary } from '../interfaces/common';
 import { MysqlDb } from './mysql-db';
 
+export enum ColumnTypes {
+  Number = 'number',
+  String = 'string',
+  Boolean = 'boolean'
+}
+
+export interface ColumnDescriptor {
+  /**
+   * The name of the column in the database
+   */
+  name: string;
+
+  /**
+   * The column's data type
+   */
+  type: ColumnTypes;
+
+  /**
+   * If this column is a primary key
+   */
+  primaryKey?: boolean;
+}
+
 export abstract class MysqlModel {
   // Makes TS happy with the freeform keys in `mysqlCopyFromRow`
   [key:string]: any;
@@ -13,7 +36,7 @@ export abstract class MysqlModel {
   /**
    * A mapping of object properties to their respective database fields
    */
-  private static _mysqlFields: Dictionary<string>;
+  private static _mysqlFields: Dictionary<ColumnDescriptor>;
 
   /**
    * The name of the object property that is the primary key in the database
@@ -38,7 +61,7 @@ export abstract class MysqlModel {
     const constructor = <typeof MysqlModel>this.constructor;
     const { _mysqlFields } = constructor;
     Object.keys(_mysqlFields).forEach((key: string) => {
-      const mysqlField = _mysqlFields[key];
+      const mysqlField = _mysqlFields[key].name;
       this[key] = row[mysqlField];
     });
   }
@@ -205,10 +228,10 @@ export function tableName(tableName: string): Function {
  *
  * @param fieldMap The object property -> database field name map
  */
-export function fieldMap(fieldMap: Dictionary<string>): Function {
+export function fieldMap(fieldMap: Dictionary<ColumnDescriptor>): Function {
   return function fieldMapDecorator<T extends MysqlModelPrototype>(MysqlModelClass:T) {
     return class extends MysqlModelClass {
-      private static _mysqlFields: Dictionary<string> = fieldMap;
+      private static _mysqlFields: Dictionary<ColumnDescriptor> = fieldMap;
     }
   }
 }

@@ -4,24 +4,26 @@ import {
   MysqlModel,
   tableName,
   fieldMap,
-  primaryKey
+  primaryKey,
+  ColumnDescriptor,
+  ColumnTypes
 } from '../lib/mysql-model';
 
 const TABLE_NAME = 'posts';
 
-const FIELD_MAP: Dictionary<string> = {
-  id: 'post_id',
-  sourceId: 'source_id',
-  externalId: 'post_external_id',
-  dateCreated: 'post_date',
-  dateUpdated: 'post_updated',
-  title: 'post_title',
-  link: 'post_link',
-  userId: 'user_id',
-  keywords: 'post_keywords',
-  score: 'post_score',
-  visible: 'post_visible',
-  nsfw: 'post_nsfw',
+const FIELD_MAP: Dictionary<ColumnDescriptor> = {
+  id: { name: 'post_id', type: ColumnTypes.Number },
+  sourceId: { name: 'source_id', type: ColumnTypes.String },
+  externalId: { name: 'post_external_id', type: ColumnTypes.String },
+  dateCreated: { name: 'post_date', type: ColumnTypes.Number },
+  dateUpdated: { name: 'post_updated', type: ColumnTypes.Number },
+  title: { name: 'post_title', type: ColumnTypes.String },
+  link: { name: 'post_link', type: ColumnTypes.String },
+  userId: { name: 'user_id', type: ColumnTypes.Number },
+  keywords: { name: 'post_keywords', type: ColumnTypes.String },
+  score: { name: 'post_score', type: ColumnTypes.Number },
+  visible: { name: 'post_visible', type: ColumnTypes.Boolean },
+  nsfw: { name: 'post_nsfw', type: ColumnTypes.Boolean },
 };
 
 export interface IPost {

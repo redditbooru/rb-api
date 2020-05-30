@@ -4,16 +4,18 @@ import {
   MysqlModel,
   tableName,
   fieldMap,
-  primaryKey
+  primaryKey,
+  ColumnDescriptor,
+  ColumnTypes
 } from '../lib/mysql-model';
 
 const TABLE_NAME = 'sources';
 
-const FIELD_MAP: Dictionary<string> = {
-  id: 'source_id',
-  name: 'source_name',
-  enabled: 'source_enabled',
-  subdomain: 'source_subdomain'
+const FIELD_MAP: Dictionary<ColumnDescriptor> = {
+  id: { name: 'source_id', type: ColumnTypes.Number },
+  name: { name: 'source_name', type: ColumnTypes.String },
+  enabled: { name: 'source_enabled', type: ColumnTypes.Boolean },
+  subdomain: { name: 'source_subdomain', type: ColumnTypes.String }
 };
 
 @tableName(TABLE_NAME)

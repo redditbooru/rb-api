@@ -4,14 +4,16 @@ import {
   MysqlModel,
   tableName,
   fieldMap,
-  primaryKey
+  primaryKey,
+  ColumnDescriptor,
+  ColumnTypes
 } from '../lib/mysql-model';
 
 const TABLE_NAME = 'service_tokens';
 
-const FIELD_MAP: Dictionary<string> = {
-  id: 'token_id',
-  secret: 'token_secret',
+const FIELD_MAP: Dictionary<ColumnDescriptor> = {
+  id: { name: 'token_id', type: ColumnTypes.String },
+  secret: { name: 'token_secret', type: ColumnTypes.String },
 };
 
 @tableName(TABLE_NAME)
