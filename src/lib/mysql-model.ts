@@ -205,7 +205,7 @@ export abstract class MysqlModel {
    */
   public static selectById(db: MysqlDb, id: (number | string)) {
     this._verifyFields();
-    const primaryKeyField = this._mysqlFields[this._mysqlPrimaryKey];
+    const primaryKeyField = this._mysqlFields[this._mysqlPrimaryKey].name;
     return db.query(
       `SELECT * FROM \`${this._mysqlTable}\` WHERE \`${primaryKeyField}\`=:primaryKey LIMIT 1`,
       { primaryKey: id }
