@@ -78,7 +78,7 @@ export abstract class MysqlModel {
    * @param {GenericObject} obj The object to create the instance from
    * @return {MysqlModel} The model instance
    */
-  public static createFromObject(obj: GenericObject) {
+  public static createFromObject(obj: GenericObject): MysqlModel {
     const retObj = <MysqlModel>this.create();
     const { _mysqlFields } = <typeof MysqlModel>retObj.constructor;
     const errors = Object.keys(_mysqlFields).reduce((errs: Array<string>, key: string) => {
@@ -97,7 +97,7 @@ export abstract class MysqlModel {
         if (!valid) {
           errs.push(`Expected type ${schema.type} for column "${key}". Got: ${obj[key]}`);
         }
-      } else if (!obj.hasOwnProperty(key) && !schema.nullable) {
+      } else if (!obj.hasOwnProperty(key) && !schema.nullable && key !== this._mysqlPrimaryKey) {
         errs.push(`Expected value for column "${key}"`);
       }
 
@@ -147,7 +147,7 @@ export abstract class MysqlModel {
       .filter(field => field !== _mysqlPrimaryKey);
 
     let query = `INSERT INTO \`${constructor._mysqlTable}\` `;
-    query += `(\`${insertableFields.map(field => _mysqlFields[field]).join('`, `')}\`) VALUES `;
+    query += `(\`${insertableFields.map(field => _mysqlFields[field].name).join('`, `')}\`) VALUES `;
     query += `(${insertableFields.map(field => `:${field}`).join(', ')})`;
 
     const result = await db.query(query, this);
