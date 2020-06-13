@@ -3,8 +3,7 @@ import { Dictionary } from '../interfaces/common';
 import {
   MysqlModel,
   tableName,
-  fieldMap,
-  primaryKey,
+  tableSchema,
   ColumnDescriptor,
   ColumnTypes
 } from '../lib/mysql-model';
@@ -18,7 +17,7 @@ export enum ImageType {
 const TABLE_NAME = 'post_data';
 
 const FIELD_MAP: Dictionary<ColumnDescriptor> = {
-  id: { name: 'image_id', type: ColumnTypes.Number },
+  id: { name: 'image_id', type: ColumnTypes.Number, primaryKey: true },
   url: { name: 'image_url', type: ColumnTypes.String },
   caption: { name: 'image_caption', type: ColumnTypes.String },
   sourceUrl: { name: 'image_source', type: ColumnTypes.String },
@@ -68,8 +67,7 @@ export interface IPostData {
 }
 
 @tableName(TABLE_NAME)
-@fieldMap(FIELD_MAP)
-@primaryKey('id')
+@tableSchema(FIELD_MAP)
 export class ImageModel extends MysqlModel {
   public id: number;
   public url: string;

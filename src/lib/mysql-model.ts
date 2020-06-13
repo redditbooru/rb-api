@@ -110,7 +110,7 @@ export abstract class MysqlModel {
     }
 
     // Copy all the properties over to the new instance
-    Object.keys(_mysqlFields).forEach(key => retObj[key] = obj[key] );
+    Object.keys(_mysqlFields).forEach(key => retObj[key] = obj[key]);
     return retObj;
   }
 
@@ -272,27 +272,23 @@ export function tableName(tableName: string): Function {
 }
 
 /**
- * Class decorator to set the field mapping of an extended MysqlModel
+ * Class decorator to set the table schema and mapping of columns to properties of
+ * and extended MysqlModel
  *
- * @param fieldMap The object property -> database field name map
+ * @param tableSchemaObj A dictionary of class properties to column schema
  */
-export function fieldMap(fieldMap: Dictionary<ColumnDescriptor>): Function {
+export function tableSchema(tableSchemaObj: Dictionary<ColumnDescriptor>): Function {
   return function fieldMapDecorator<T extends MysqlModelPrototype>(MysqlModelClass:T) {
-    return class extends MysqlModelClass {
-      private static _mysqlFields: Dictionary<ColumnDescriptor> = fieldMap;
-    }
-  }
-}
+    // See if there's a primary key in the field map
+    let primaryKey: (string | undefined) = undefined;
+    Object.keys(tableSchemaObj).find(key => {
+      primaryKey = tableSchemaObj[key].primaryKey ? key : undefined;
+      return !!primaryKey;
+    });
 
-/**
- * Class decorator to set the primary key name of an extended MysqlModel
- *
- * @param primaryKey The object property name of the primary key
- */
-export function primaryKey(primaryKey: string): Function {
-  return function primaryKeyDecorator<T extends MysqlModelPrototype>(MysqlModelClass:T) {
     return class extends MysqlModelClass {
-      private static _mysqlPrimaryKey: string = primaryKey;
+      private static _mysqlFields: Dictionary<ColumnDescriptor> = tableSchemaObj;
+      private static _mysqlPrimaryKey: (string | undefined) = primaryKey;
     }
   }
 }

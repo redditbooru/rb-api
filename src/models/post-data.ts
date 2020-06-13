@@ -4,8 +4,7 @@ import { ImageType } from './image';
 import {
   MysqlModel,
   tableName,
-  fieldMap,
-  primaryKey,
+  tableSchema,
   ColumnDescriptor,
   ColumnTypes,
 } from '../lib/mysql-model';
@@ -13,7 +12,7 @@ import {
 const TABLE_NAME = 'post_data';
 
 const FIELD_MAP: Dictionary<ColumnDescriptor> = {
-  id: { name: 'pd_id', type: ColumnTypes.Number },
+  id: { name: 'pd_id', type: ColumnTypes.Number, primaryKey: true },
   imageId: { name: 'image_id', type: ColumnTypes.Number },
   postId: { name: 'post_id', type: ColumnTypes.Number },
   width: { name: 'image_width', type: ColumnTypes.Number },
@@ -57,8 +56,7 @@ export interface IPostData {
 }
 
 @tableName(TABLE_NAME)
-@fieldMap(FIELD_MAP)
-@primaryKey('id')
+@tableSchema(FIELD_MAP)
 export class PostDataModel extends MysqlModel {
   public id: number;
   public imageId: number;

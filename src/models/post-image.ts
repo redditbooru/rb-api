@@ -3,7 +3,7 @@ import { Dictionary } from '../interfaces/common';
 import {
   MysqlModel,
   tableName,
-  fieldMap,
+  tableSchema,
   ColumnTypes,
 } from '../lib/mysql-model';
 
@@ -13,7 +13,7 @@ export interface IPostData {
 }
 
 @tableName('post_images')
-@fieldMap({
+@tableSchema({
   postId: { name: 'post_id', type: ColumnTypes.Number },
   imageId: { name: 'image_id', type: ColumnTypes.Number },
 })

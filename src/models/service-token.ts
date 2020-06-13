@@ -3,8 +3,7 @@ import { Dictionary } from '../interfaces/common';
 import {
   MysqlModel,
   tableName,
-  fieldMap,
-  primaryKey,
+  tableSchema,
   ColumnDescriptor,
   ColumnTypes
 } from '../lib/mysql-model';
@@ -12,13 +11,12 @@ import {
 const TABLE_NAME = 'service_tokens';
 
 const FIELD_MAP: Dictionary<ColumnDescriptor> = {
-  id: { name: 'token_id', type: ColumnTypes.String },
+  id: { name: 'token_id', type: ColumnTypes.String, primaryKey: true },
   secret: { name: 'token_secret', type: ColumnTypes.String },
 };
 
 @tableName(TABLE_NAME)
-@fieldMap(FIELD_MAP)
-@primaryKey('id')
+@tableSchema(FIELD_MAP)
 export class ServiceTokenModel extends MysqlModel {
   public id: string;
   public secret: string;

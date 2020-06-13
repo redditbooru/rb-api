@@ -3,8 +3,7 @@ import { Dictionary } from '../interfaces/common';
 import {
   MysqlModel,
   tableName,
-  fieldMap,
-  primaryKey,
+  tableSchema,
   ColumnDescriptor,
   ColumnTypes
 } from '../lib/mysql-model';
@@ -13,7 +12,7 @@ import { MysqlDb } from '../lib/mysql-db';
 const TABLE_NAME = 'posts';
 
 const FIELD_MAP: Dictionary<ColumnDescriptor> = {
-  id: { name: 'post_id', type: ColumnTypes.Number },
+  id: { name: 'post_id', type: ColumnTypes.Number, primaryKey: true },
   sourceId: { name: 'source_id', type: ColumnTypes.String },
   externalId: { name: 'post_external_id', type: ColumnTypes.String },
   dateCreated: { name: 'post_date', type: ColumnTypes.Number },
@@ -43,8 +42,7 @@ export interface IPost {
 }
 
 @tableName(TABLE_NAME)
-@fieldMap(FIELD_MAP)
-@primaryKey('id')
+@tableSchema(FIELD_MAP)
 export class PostModel extends MysqlModel implements IPost {
   public id: number;
   public sourceId: number;
