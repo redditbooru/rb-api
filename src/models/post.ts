@@ -8,6 +8,7 @@ import {
   ColumnDescriptor,
   ColumnTypes
 } from '../lib/mysql-model';
+import { MysqlDb } from '../lib/mysql-db';
 
 const TABLE_NAME = 'posts';
 
@@ -16,7 +17,7 @@ const FIELD_MAP: Dictionary<ColumnDescriptor> = {
   sourceId: { name: 'source_id', type: ColumnTypes.String },
   externalId: { name: 'post_external_id', type: ColumnTypes.String },
   dateCreated: { name: 'post_date', type: ColumnTypes.Number },
-  dateUpdated: { name: 'post_updated', type: ColumnTypes.Number },
+  dateUpdated: { name: 'post_updated', type: ColumnTypes.Number, nullable: true },
   title: { name: 'post_title', type: ColumnTypes.String },
   link: { name: 'post_link', type: ColumnTypes.String },
   userId: { name: 'user_id', type: ColumnTypes.Number },
@@ -64,5 +65,10 @@ export class PostModel extends MysqlModel implements IPost {
 
   public static create() {
     return new PostModel();
+  }
+
+  public sync(db: MysqlDb): Promise<void> {
+    this.dateUpdated = Math.round(Date.now() / 1000);
+    return super.sync(db);
   }
 }

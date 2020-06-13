@@ -1,15 +1,31 @@
-// This exists solely to prevent a circular reference
-const Post = require('./post');
-const Image = require('./image');
+import { Dictionary } from '../interfaces/common';
 
-Post.belongsToMany(Image, {
-  through: 'post_images',
-  as: 'Images',
-  foreignKey: 'post_id'
-});
+import {
+  MysqlModel,
+  tableName,
+  fieldMap,
+  ColumnTypes,
+} from '../lib/mysql-model';
 
-Image.belongsToMany(Post, {
-  through: 'post_images',
-  as: 'Posts',
-  foreignKey: 'image_id'
-});
+export interface IPostData {
+  postId: number;
+  imageId: number;
+}
+
+@tableName('post_images')
+@fieldMap({
+  postId: { name: 'post_id', type: ColumnTypes.Number },
+  imageId: { name: 'image_id', type: ColumnTypes.Number },
+})
+export class PostDataModel extends MysqlModel {
+  public imageId: number;
+  public postId: number;
+
+  constructor() {
+    super();
+  }
+
+  public static create() {
+    return new PostDataModel();
+  }
+}
