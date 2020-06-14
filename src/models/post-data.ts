@@ -8,6 +8,7 @@ import {
   ColumnDescriptor,
   ColumnTypes,
 } from '../lib/mysql-model';
+import { MysqlDb } from '../lib/mysql-db';
 
 export interface IPostData {
   id: number;
@@ -53,7 +54,7 @@ export interface IPostData {
   userId: { name: 'user_id', type: ColumnTypes.Number },
   userName: { name: 'user_name', type: ColumnTypes.String },
 })
-export class PostDataModel extends MysqlModel {
+export class PostDataModel extends MysqlModel implements IPostData {
   public id: number;
   public imageId: number;
   public postId: number;
@@ -80,5 +81,24 @@ export class PostDataModel extends MysqlModel {
 
   public static create() {
     return new PostDataModel();
+  }
+
+  /**
+   * Returns all posts matching the passed post ID
+   *
+   * @param postId The post ID
+   * @param db Database object
+   */
+  public static async getByPostId(postId: number, db: MysqlDb): Promise<Array<PostDataModel>> {
+    let retVal: Array<PostDataModel> = [];
+    try {
+      const result = await db.query('SELECT * FROM `post_data` WHERE `post_id` = :postId', { postId });
+      if (result && result.rows) {
+        retVal = result.rows.map(dataResult => <PostDataModel>PostDataModel.createFromObject(dataResult));
+      }
+    } catch (err) {
+      console.error('[PostData.getByPostId] Unable to fetch post data for ID: ', err);
+    }
+    return retVal;
   }
 }
