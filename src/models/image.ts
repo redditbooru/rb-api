@@ -14,33 +14,6 @@ export enum ImageType {
   GIF = 'gif'
 }
 
-const TABLE_NAME = 'post_data';
-
-const FIELD_MAP: Dictionary<ColumnDescriptor> = {
-  id: { name: 'image_id', type: ColumnTypes.Number, primaryKey: true },
-  url: { name: 'image_url', type: ColumnTypes.String },
-  caption: { name: 'image_caption', type: ColumnTypes.String },
-  sourceUrl: { name: 'image_source', type: ColumnTypes.String },
-  width: { name: 'image_width', type: ColumnTypes.Number },
-  height: { name: 'image_height', type: ColumnTypes.Number },
-  histR1: { name: 'image_hist_r1', type: ColumnTypes.Number },
-  histR2: { name: 'image_hist_r2', type: ColumnTypes.Number },
-  histR3: { name: 'image_hist_r3', type: ColumnTypes.Number },
-  histR4: { name: 'image_hist_r4', type: ColumnTypes.Number },
-  histG1: { name: 'image_hist_g1', type: ColumnTypes.Number },
-  histG2: { name: 'image_hist_g2', type: ColumnTypes.Number },
-  histG3: { name: 'image_hist_g3', type: ColumnTypes.Number },
-  histG4: { name: 'image_hist_g4', type: ColumnTypes.Number },
-  histB1: { name: 'image_hist_b1', type: ColumnTypes.Number },
-  histB2: { name: 'image_hist_b2', type: ColumnTypes.Number },
-  histB3: { name: 'image_hist_b3', type: ColumnTypes.Number },
-  histB4: { name: 'image_hist_b4', type: ColumnTypes.Number },
-  dHashR: { name: 'image_dhashr', type: ColumnTypes.Number },
-  dHashG: { name: 'image_dhashg', type: ColumnTypes.Number },
-  dHashB: { name: 'image_dhashb', type: ColumnTypes.Number },
-  type: { name: 'image_type', type: ColumnTypes.String }
-};
-
 export interface IPostData {
   id: number,
   url: string,
@@ -66,8 +39,31 @@ export interface IPostData {
   type: ImageType
 }
 
-@tableName(TABLE_NAME)
-@tableSchema(FIELD_MAP)
+@tableName('post_data')
+@tableSchema({
+  id: { name: 'image_id', type: ColumnTypes.Number, primaryKey: true },
+  url: { name: 'image_url', type: ColumnTypes.String },
+  caption: { name: 'image_caption', type: ColumnTypes.String },
+  sourceUrl: { name: 'image_source', type: ColumnTypes.String },
+  width: { name: 'image_width', type: ColumnTypes.Number },
+  height: { name: 'image_height', type: ColumnTypes.Number },
+  histR1: { name: 'image_hist_r1', type: ColumnTypes.Number },
+  histR2: { name: 'image_hist_r2', type: ColumnTypes.Number },
+  histR3: { name: 'image_hist_r3', type: ColumnTypes.Number },
+  histR4: { name: 'image_hist_r4', type: ColumnTypes.Number },
+  histG1: { name: 'image_hist_g1', type: ColumnTypes.Number },
+  histG2: { name: 'image_hist_g2', type: ColumnTypes.Number },
+  histG3: { name: 'image_hist_g3', type: ColumnTypes.Number },
+  histG4: { name: 'image_hist_g4', type: ColumnTypes.Number },
+  histB1: { name: 'image_hist_b1', type: ColumnTypes.Number },
+  histB2: { name: 'image_hist_b2', type: ColumnTypes.Number },
+  histB3: { name: 'image_hist_b3', type: ColumnTypes.Number },
+  histB4: { name: 'image_hist_b4', type: ColumnTypes.Number },
+  dHashR: { name: 'image_dhashr', type: ColumnTypes.Number },
+  dHashG: { name: 'image_dhashg', type: ColumnTypes.Number },
+  dHashB: { name: 'image_dhashb', type: ColumnTypes.Number },
+  type: { name: 'image_type', type: ColumnTypes.String }
+})
 export class ImageModel extends MysqlModel {
   public id: number;
   public url: string;
