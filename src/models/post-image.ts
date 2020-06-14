@@ -7,7 +7,7 @@ import {
   ColumnTypes,
 } from '../lib/mysql-model';
 
-export interface IPostData {
+export interface IPostImage {
   postId: number;
   imageId: number;
 }
@@ -17,7 +17,7 @@ export interface IPostData {
   postId: { name: 'post_id', type: ColumnTypes.Number },
   imageId: { name: 'image_id', type: ColumnTypes.Number },
 })
-export class PostImageModel extends MysqlModel {
+export class PostImageModel extends MysqlModel implements IPostImage {
   public imageId: number;
   public postId: number;
 
@@ -26,6 +26,6 @@ export class PostImageModel extends MysqlModel {
   }
 
   public static create() {
-    return new PostDataModel();
+    return new PostImageModel();
   }
 }
