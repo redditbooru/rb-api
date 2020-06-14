@@ -39,12 +39,12 @@ export interface IPostData {
   type: ImageType
 }
 
-@tableName('post_data')
+@tableName('images')
 @tableSchema({
   id: { name: 'image_id', type: ColumnTypes.Number, primaryKey: true },
   url: { name: 'image_url', type: ColumnTypes.String },
-  caption: { name: 'image_caption', type: ColumnTypes.String },
-  sourceUrl: { name: 'image_source', type: ColumnTypes.String },
+  caption: { name: 'image_caption', type: ColumnTypes.String, nullable: true },
+  sourceUrl: { name: 'image_source', type: ColumnTypes.String, nullable: true },
   width: { name: 'image_width', type: ColumnTypes.Number },
   height: { name: 'image_height', type: ColumnTypes.Number },
   histR1: { name: 'image_hist_r1', type: ColumnTypes.Number },
