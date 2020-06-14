@@ -17,7 +17,7 @@ export interface IPostData {
   postId: { name: 'post_id', type: ColumnTypes.Number },
   imageId: { name: 'image_id', type: ColumnTypes.Number },
 })
-export class PostDataModel extends MysqlModel {
+export class PostImageModel extends MysqlModel {
   public imageId: number;
   public postId: number;
 
