@@ -75,11 +75,11 @@ export class MysqlDb {
         await this.query('COMMIT');
         retVal = true;
       } else {
-        console.error('mysql-db error: transaction callback failed');
+        console.error('[MySqlDb.transaction]: transaction callback failed');
         await this.query('ROLLBACK');
       }
     } catch (err) {
-      console.error('mysql-db error: ', err);
+      console.error('[MySqlDb.transaction]: caught error', err);
       await this.query('ROLLBACK');
     }
 
