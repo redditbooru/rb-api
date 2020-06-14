@@ -68,7 +68,7 @@ export class MysqlDb {
   public async transaction(transactionMethod: TransactionMethod): Promise<boolean> {
     let retVal = false;
 
-    await this.query('BEGIN TRANSACTION');
+    await this.query('START TRANSACTION');
     try {
       const result = await transactionMethod();
       if (result) {
