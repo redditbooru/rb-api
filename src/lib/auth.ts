@@ -45,7 +45,7 @@ class Auth {
     }
 
     const cacheKey = `getAccessLevelFromRequest_${clientId}_${clientSecret}`;
-    let retVal = null; //await cache.get(cacheKey);
+    let retVal = await cache.get(cacheKey);
     if (!retVal) {
       const serviceToken = <ServiceTokenModel> await ServiceTokenModel.selectById(this.db, clientId);
 
@@ -81,7 +81,7 @@ export function authReadOnly() {
       if (accessLevel === AccessLevel.NotVerified) {
         res.status(403);
       } else {
-        await originalFn.apply(this, [ req, res, ...args ]);
+        return await originalFn.apply(this, [ req, res, ...args ]);
       }
     };
   }
@@ -103,7 +103,7 @@ export function authFullAccess() {
       if (accessLevel !== AccessLevel.FullyVerified) {
         res.status(403);
       } else {
-        await originalFn.apply(this, [ req, res, ...args ]);
+        return await originalFn.apply(this, [ req, res, ...args ]);
       }
     };
   }
