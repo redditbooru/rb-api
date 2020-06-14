@@ -8,6 +8,8 @@ export interface IQueryResult {
   fields?: Array<mysql.FieldInfo>;
 }
 
+export type TransactionMethod = () => Promise<boolean>;
+
 export class MysqlDb {
   private _conn: mysql.Pool;
 
@@ -57,6 +59,33 @@ export class MysqlDb {
     });
   }
 
+  /**
+   * Wraps a callback of transactions in a MySQL transaction with automatic COMMIT/ROLLBACK
+   *
+   * @param transactionMethod The method that will be executed between the beginning of the transaction
+   *                          and committing the results. Do INSERTs/UPDATEs here.
+   */
+  public async transaction(transactionMethod: TransactionMethod): Promise<boolean> {
+    let retVal = false;
+
+    await this.query('BEGIN TRANSACTION');
+    try {
+      const result = await transactionMethod();
+      if (result) {
+        await this.query('COMMIT');
+        retVal = true;
+      } else {
+        console.error('mysql-db error: transaction callback failed');
+        await this.query('ROLLBACK');
+      }
+    } catch (err) {
+      console.error('mysql-db error: ', err);
+      await this.query('ROLLBACK');
+    }
+
+    return retVal;
+  }
+
   private _queryFormat(query: string, params?: Dictionary<any>) {
     if (!params) {
       return query;
@@ -74,7 +103,7 @@ export class MysqlDb {
 
   /**
    * Performs special type casting for single bit fields
-   * 
+   *
    * @param field The field info
    * @param defaultTypeCasting The default type casting method
    */
