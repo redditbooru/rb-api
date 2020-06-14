@@ -94,7 +94,11 @@ export class PostDataModel extends MysqlModel implements IPostData {
     try {
       const result = await db.query('SELECT * FROM `post_data` WHERE `post_id` = :postId', { postId });
       if (result && result.rows) {
-        retVal = result.rows.map(dataResult => <PostDataModel>PostDataModel.createFromObject(dataResult));
+        retVal = result.rows.map(row => {
+          const postDataModel = PostDataModel.create();
+          postDataModel.mysqlCopyFromRow(row);
+          return postDataModel;
+        });
       }
     } catch (err) {
       console.error('[PostData.getByPostId] Unable to fetch post data for ID: ', err);
