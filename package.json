@@ -19,7 +19,7 @@
   },
   "homepage": "https://github.com/dxprog/rb-api#readme",
   "dependencies": {
-    "express": "^4.16.3",
+    "express": "^4.17.3",
     "memcached": "^2.2.2",
     "mysql": "github:mysqljs/mysql",
     "request": "^2.88.0",
